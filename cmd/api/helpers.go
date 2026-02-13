@@ -9,6 +9,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// Define an envelope type
+type envelope map[string]interface{}
+
 func (app *application) readIDParam(w http.ResponseWriter, r *http.Request) (int64, error) {
 	//getting params from the context
 	params := httprouter.ParamsFromContext(r.Context())
@@ -21,13 +24,12 @@ func (app *application) readIDParam(w http.ResponseWriter, r *http.Request) (int
 	return id, nil
 }
 
-func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	//encode json
-	js, err := json.Marshal(data)
+	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
 	}
-
 	//append a new line in json  just for view
 	js = append(js, '\n')
 
