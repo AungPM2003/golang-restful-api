@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"aung.greenlight.net/internal/data"
+	"aung.greenlight.net/internal/validator"
 )
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +25,17 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	movie := &data.Movie{
+		Title:   input.Title,
+		Year:    input.Year,
+		Runtime: input.Runtime,
+		Genres:  input.Genres,
+	}
+	v := validator.New()
+	if data.ValidateMovie(v, movie); !v.Valid() {
+		app.errorResponse(w, r, http.StatusUnprocessableEntity, v.Errors)
+		return
+	}
 	//this is decoding with json.Un,marshal
 	// body, err := io.ReadAll(r.Body)
 	// if err != nil {
